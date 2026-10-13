@@ -66,25 +66,20 @@ composer install && DB_NAME=erp_test composer test
 
 ## Publicar no Railway (sem comprar dominio)
 
-O Railway entrega gratis um endereco `https://nome.up.railway.app`. O projeto ja tem `Dockerfile`, que o Railway detecta sozinho.
+O Railway entrega gratis um endereco `https://nome.up.railway.app`. O projeto ja tem `Dockerfile` e `railway.json`.
 
-1. Suba o codigo para um repositorio **privado** no GitHub.
+1. Suba **todas as pastas** do projeto para um repositorio privado no GitHub (veja `SUBIR-NO-GITHUB.txt`).
 2. No Railway: **New Project > Deploy from GitHub repo** e escolha o repositorio.
 3. No mesmo projeto: **+ New > Database > MySQL**.
-4. No servico do ERP, aba **Variables**, adicione (troque `MySQL` pelo nome exato do servico de banco, se for outro):
+4. No servico do ERP, aba **Variables**, crie so duas variaveis (troque `MySQL` pelo nome exato do servico de banco, se for outro):
 
    | Variavel | Valor |
    |---|---|
-   | `DB_HOST` | `${{MySQL.MYSQLHOST}}` |
-   | `DB_PORT` | `${{MySQL.MYSQLPORT}}` |
-   | `DB_NAME` | `${{MySQL.MYSQLDATABASE}}` |
-   | `DB_USER` | `${{MySQL.MYSQLUSER}}` |
-   | `DB_PASS` | `${{MySQL.MYSQLPASSWORD}}` |
-   | `ADMIN_USER` | `admin` |
+   | `MYSQL_URL` | `${{MySQL.MYSQL_URL}}` |
    | `ADMIN_PASSWORD` | senha com 10+ caracteres |
 
-5. Aba **Settings > Volumes**: crie um volume com *mount path* `/var/www/html/public/uploads` (sem ele, as fotos dos produtos somem a cada deploy).
-6. Aba **Settings > Networking > Generate Domain**.
-7. Abra o endereco gerado e entre com `admin` e a senha definida.
+   (Alternativa: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS` separados; tambem funcionam.)
+5. **Settings > Volumes**: volume com *mount path* `/var/www/html/public/uploads` (sem ele, as fotos dos produtos somem a cada deploy).
+6. **Settings > Networking > Generate Domain**, abra o endereco e entre com `admin` e a senha do passo 4.
 
-No primeiro start o sistema aplica as migracoes e cria o admin automaticamente (so se nao existir nenhum usuario). Depois do primeiro acesso, apague `ADMIN_PASSWORD` das variaveis. Atualizar o sistema = `git push` na branch `main`.
+Como funciona: o servidor web sobe imediatamente; em segundo plano o sistema espera o banco, aplica as migracoes e cria o admin (so se ainda nao existir usuario). Se o banco nao estiver configurado, o site mostra uma pagina explicando o que falta, em vez de erro generico. Depois do primeiro acesso, apague `ADMIN_PASSWORD`. Atualizar = `git push` na `main`.
