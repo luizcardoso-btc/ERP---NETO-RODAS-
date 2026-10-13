@@ -10,6 +10,10 @@ RUN a2enconf erp
 
 WORKDIR /var/www/html
 COPY . .
+# Falha cedo, com mensagem clara, se o upload para o GitHub ficou incompleto.
+RUN for f in bin/migrate.php bin/create-admin.php src/bootstrap.php src/Database.php pages/login.php public/index.php migrations/001_init.sql; do \
+      [ -f "$f" ] || { echo "ERRO: $f nao esta no repositorio. Upload para o GitHub incompleto (faltam pastas)."; ls -la; exit 1; }; \
+    done
 RUN mkdir -p public/uploads && chown -R www-data:www-data public/uploads
 
 RUN printf '%s\n' '#!/bin/sh' 'set -e' 'PORT="${PORT:-80}"' 'sed -ri "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf' 'sed -ri "s/<VirtualHost \*:[0-9]+>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf' 'mkdir -p /var/www/html/public/uploads' 'chown -R www-data:www-data /var/www/html/public/uploads || true' 'i=0' 'until php bin/migrate.php; do' '  i=$((i+1))' '  if [ "$i" -ge 20 ]; then echo "Banco indisponivel apos 20 tentativas."; exit 1; fi' '  echo "Aguardando banco... ($i)"; sleep 3' 'done' 'php bin/create-admin.php --if-empty || true' 'exec apache2-foreground' > /usr/local/bin/entrypoint.sh
