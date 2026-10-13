@@ -1,0 +1,7 @@
+.env
+/vendor/
+/public/uploads/*
+!/public/uploads/.gitkeep
+.phpunit.result.cache
+*.log
+.DS_Store
