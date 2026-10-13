@@ -63,3 +63,28 @@ composer install && DB_NAME=erp_test composer test
 - Mapa de clientes (geocodificacao e Leaflet; as colunas `geo_*` ja existem).
 - Importacao de extrato bancario (CSV/OFX).
 - Importacao dos dados do sistema atual (clientes, produtos, vendas).
+
+## Publicar no Railway (sem comprar dominio)
+
+O Railway entrega gratis um endereco `https://nome.up.railway.app`. O projeto ja tem `Dockerfile`, que o Railway detecta sozinho.
+
+1. Suba o codigo para um repositorio **privado** no GitHub.
+2. No Railway: **New Project > Deploy from GitHub repo** e escolha o repositorio.
+3. No mesmo projeto: **+ New > Database > MySQL**.
+4. No servico do ERP, aba **Variables**, adicione (troque `MySQL` pelo nome exato do servico de banco, se for outro):
+
+   | Variavel | Valor |
+   |---|---|
+   | `DB_HOST` | `${{MySQL.MYSQLHOST}}` |
+   | `DB_PORT` | `${{MySQL.MYSQLPORT}}` |
+   | `DB_NAME` | `${{MySQL.MYSQLDATABASE}}` |
+   | `DB_USER` | `${{MySQL.MYSQLUSER}}` |
+   | `DB_PASS` | `${{MySQL.MYSQLPASSWORD}}` |
+   | `ADMIN_USER` | `admin` |
+   | `ADMIN_PASSWORD` | senha com 10+ caracteres |
+
+5. Aba **Settings > Volumes**: crie um volume com *mount path* `/var/www/html/public/uploads` (sem ele, as fotos dos produtos somem a cada deploy).
+6. Aba **Settings > Networking > Generate Domain**.
+7. Abra o endereco gerado e entre com `admin` e a senha definida.
+
+No primeiro start o sistema aplica as migracoes e cria o admin automaticamente (so se nao existir nenhum usuario). Depois do primeiro acesso, apague `ADMIN_PASSWORD` das variaveis. Atualizar o sistema = `git push` na branch `main`.

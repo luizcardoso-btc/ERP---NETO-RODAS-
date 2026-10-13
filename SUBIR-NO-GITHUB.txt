@@ -1,0 +1,12 @@
+COMO SUBIR (2 minutos, sem terminal)
+
+1. Descompacte este zip.
+2. No GitHub, abra o repositorio > "Add file" > "Upload files".
+3. Abra a pasta descompactada, SELECIONE TUDO que esta dentro dela (Ctrl+A)
+   e arraste para a pagina do GitHub. As pastas (bin, src, pages, public,
+   migrations, tests, deploy) devem aparecer na lista antes de confirmar.
+4. Clique em "Commit changes". O Railway faz o deploy sozinho.
+
+Arquivos que precisam estar na raiz do repositorio: Dockerfile, railway.json,
+composer.json, bin/, src/, pages/, public/, migrations/.
+O Dockerfile nao depende de mais nada alem deles.
