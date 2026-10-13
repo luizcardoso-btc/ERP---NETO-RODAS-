@@ -9,10 +9,13 @@ RUN a2enconf erp
 RUN printf '%s\n' 'display_errors=Off' 'log_errors=On' 'error_log=/dev/stderr' 'upload_max_filesize=4M' 'post_max_size=8M' 'date.timezone=America/Bahia' > /usr/local/etc/php/conf.d/erp.ini
 
 WORKDIR /var/www/html
-COPY . .
+COPY . /tmp/src/
+# Aceita o codigo em pastas normais OU dentro de erp-app.tar.gz (upload simples pelo navegador).
+RUN if [ -f /tmp/src/erp-app.tar.gz ]; then tar xzf /tmp/src/erp-app.tar.gz -C /var/www/html --strip-components=1; \
+    else cp -a /tmp/src/. /var/www/html/; fi; rm -rf /tmp/src
 # Falha cedo, com mensagem clara, se o upload para o GitHub ficou incompleto.
 RUN for f in bin/migrate.php bin/create-admin.php src/bootstrap.php src/Database.php src/Diagnostics.php pages/login.php public/index.php migrations/001_init.sql; do \
-      [ -f "$f" ] || { echo "ERRO: $f nao esta no repositorio. Upload para o GitHub incompleto (faltam pastas)."; ls -la; exit 1; }; \
+      [ -f "$f" ] || { echo "ERRO: $f nao esta no repositorio. Suba tambem o arquivo erp-app.tar.gz junto do Dockerfile."; ls -la; exit 1; }; \
     done
 RUN mkdir -p public/uploads && chown -R www-data:www-data public/uploads
 
